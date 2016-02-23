@@ -19,13 +19,11 @@ def mapit_url(pun):
 
 
 def get_area_from_pun(pun):
-    while pun:
-        r = requests.get(mapit_url(pun))
+    variations = [pun.rsplit(':', n)[0] for n in range(0, len(pun.split(':')))]
+    for pun_variation in variations:
+        r = requests.get(mapit_url(pun_variation))
         if r.status_code == 200:
-            return r.json()
-        # strip off last component
-        pun = re.sub(r'[^:]+$', '', pun)
-        pun = re.sub(r':$', '', pun)
+            return jsonify(r.json())
 
 
 @app.route("/lookup/<polling_unit_number>")
@@ -33,10 +31,16 @@ def lookup(polling_unit_number):
     pun = tidy_up_pun(polling_unit_number)
 
     if not pun_re.search(pun):
-        error = 'Unrecognized poll_unit: {}.'
+        error = 'Unrecognized polling unit: {}.'
         return jsonify(code=404, error=error.format(polling_unit_number)), 404
 
-    return jsonify(get_area_from_pun(pun))
+    area = get_area_from_pun(pun)
+
+    if not area:
+        error = 'No areas were found that matched polling unit: {}'
+        return jsonify(code=404, error=error.format(polling_unit_number)), 404
+
+    return area
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ class PollingUnitLookupTestCase(unittest.TestCase):
 
     def test_polling_unit_lookup_invalid_number(self):
         rv = self.app.get('/lookup/abcd')
-        assert 'Unrecognized poll_unit: abcd' in rv.data
+        assert 'Unrecognized polling unit: abcd' in rv.data
         self.assertEqual(rv.status_code, 404)
 
     def test_polling_unit_lookup_valid_number(self):
@@ -22,6 +22,24 @@ class PollingUnitLookupTestCase(unittest.TestCase):
             rv = self.app.get('/lookup/AB:01:23:45')
             self.assertEqual(rv.status_code, 200)
             self.assertEqual(rv.data, '{"name": "Area"}')
+
+    def test_polling_unit_lookup_valid_number_no_area(self):
+        with requests_mock.mock() as m:
+            m.get('http://pmo/code/poll_unit/ZZ', status_code=404)
+            rv = self.app.get('/lookup/ZZ')
+            self.assertEqual(rv.status_code, 404)
+            assert 'No areas were found that matched polling unit: ZZ' in rv.data
+
+    def test_lookup_tries_multiple_variations(self):
+        with requests_mock.mock() as m:
+            m.get('http://pmo/code/poll_unit/AB:1:23:45', status_code=404)
+            m.get('http://pmo/code/poll_unit/AB:1:23', status_code=404)
+            m.get('http://pmo/code/poll_unit/AB:1', status_code=404)
+            m.get('http://pmo/code/poll_unit/AB', text='{"name": "Area"}')
+            rv = self.app.get('/lookup/AB:01:23:45')
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data, '{"name": "Area"}')
+
 
 if __name__ == '__main__':
     unittest.main()
