@@ -12,14 +12,14 @@ class PollingUnitLookupTestCase(unittest.TestCase):
         self.app = polling_unit_lookup.app.test_client()
 
     def test_polling_unit_lookup_invalid_number(self):
-        rv = self.app.get('/?q=abcd')
+        rv = self.app.get('/lookup/abcd')
         assert 'Unrecognized poll_unit: abcd' in rv.data
         self.assertEqual(rv.status_code, 404)
 
     def test_polling_unit_lookup_valid_number(self):
         with requests_mock.mock() as m:
             m.get('http://pmo/code/poll_unit/AB:1:23:45', text='{"name": "Area"}')
-            rv = self.app.get('/?q=AB:01:23:45')
+            rv = self.app.get('/lookup/AB:01:23:45')
             self.assertEqual(rv.status_code, 200)
             self.assertEqual(rv.data, '{"name": "Area"}')
 
