@@ -52,26 +52,6 @@ state_number_to_letter_mappings = {
 def tidy_up_pun(pun):
     """
     Tidy up the query into something that looks like PUNs we are expecting
-
-    # None returns empty string
-    >>> tidy_up_pun(None)
-    ''
-
-    # Tidy up and strip as expected
-    >>> tidy_up_pun("AB:01:23:45")
-    'AB:1:23:45'
-    >>> tidy_up_pun("AB--01::23 45")
-    'AB:1:23:45'
-    >>> tidy_up_pun("  AB--01::23 45  ")
-    'AB:1:23:45'
-
-    # Convert state numbers to state code, if found
-    >>> tidy_up_pun("01:01:23:45")
-    'AB:1:23:45'
-    >>> tidy_up_pun("01")
-    'AB'
-    >>> tidy_up_pun("99:01:23:45")
-    '99:1:23:45'
     """
 
     if not pun:

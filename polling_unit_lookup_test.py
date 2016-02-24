@@ -1,15 +1,30 @@
-import polling_unit_lookup
+from polling_unit_lookup import app, tidy_up_pun
 import unittest
 import requests_mock
+
+
+class TidyUpPunTestCase(unittest.TestCase):
+    def test_none_returns_empty_string(self):
+        self.assertEqual('', tidy_up_pun(None))
+
+    def test_tidy_up_and_clean(self):
+        self.assertEqual('AB:1:23:45', tidy_up_pun('AB:01:23:45'))
+        self.assertEqual('AB:1:23:45', tidy_up_pun('AB--01::23 45'))
+        self.assertEqual('AB:1:23:45', tidy_up_pun('  AB--01::23 45  '))
+
+    def test_converting_state_number_to_code(self):
+        self.assertEqual('AB:1:23:45', tidy_up_pun('01:01:23:45'))
+        self.assertEqual('AB', tidy_up_pun('01'))
+        self.assertEqual('99:1:23:45', tidy_up_pun('99:01:23:45'))
 
 
 class PollingUnitLookupTestCase(unittest.TestCase):
 
     def setUp(self):
-        polling_unit_lookup.app.config['TESTING'] = True
-        polling_unit_lookup.app.config['MAPIT_API_URL'] = 'http://pmo'
-        polling_unit_lookup.app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
-        self.app = polling_unit_lookup.app.test_client()
+        app.config['TESTING'] = True
+        app.config['MAPIT_API_URL'] = 'http://pmo'
+        app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+        self.app = app.test_client()
 
     def test_polling_unit_lookup_invalid_number(self):
         rv = self.app.get('/?lookup=abcd')
