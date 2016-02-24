@@ -5,9 +5,9 @@ import requests
 from flask import Flask, request, jsonify
 
 
-# These are hardcoded here rather than being introduced into the database to
-# avoid having a huge number of duplicated codes in MapIt. As it is largely a
-# presentation thing though I don't think it is too big an issue.
+# These are hardcoded here rather than being introduced into the mapit database
+# to avoid having a huge number of duplicated codes in MapIt. As it is largely
+# a presentation thing though I don't think it is too big an issue.
 state_number_to_letter_mappings = {
     "1": "AB",
     "2": "AD",
