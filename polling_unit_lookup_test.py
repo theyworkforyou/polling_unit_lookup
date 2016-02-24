@@ -13,7 +13,7 @@ class PollingUnitLookupTestCase(unittest.TestCase):
 
     def test_polling_unit_lookup_invalid_number(self):
         rv = self.app.get('/?lookup=abcd')
-        assert 'Unrecognized polling unit: abcd' in rv.data
+        self.assertIn('Unrecognized polling unit: abcd', rv.data)
         self.assertEqual(rv.status_code, 404)
 
     def test_polling_unit_lookup_valid_number(self):
@@ -28,7 +28,7 @@ class PollingUnitLookupTestCase(unittest.TestCase):
             m.get('http://pmo/code/poll_unit/ZZ', status_code=404)
             rv = self.app.get('/?lookup=ZZ')
             self.assertEqual(rv.status_code, 404)
-            assert 'No areas were found that matched polling unit: ZZ' in rv.data
+            self.assertIn('No areas were found that matched polling unit: ZZ', rv.data)
 
     def test_lookup_tries_multiple_variations(self):
         with requests_mock.mock() as m:
