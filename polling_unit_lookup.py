@@ -5,9 +5,9 @@ import requests
 from flask import Flask, request, jsonify
 
 
-# These are hardcoded here rather than being introduced into the database to
-# avoid having a huge number of duplicated codes in MapIt. As it is largely a
-# presentation thing though I don't think it is too big an issue.
+# These are hardcoded here rather than being introduced into the mapit database
+# to avoid having a huge number of duplicated codes in MapIt. As it is largely
+# a presentation thing though I don't think it is too big an issue.
 state_number_to_letter_mappings = {
     "1": "AB",
     "2": "AD",
@@ -52,26 +52,6 @@ state_number_to_letter_mappings = {
 def tidy_up_pun(pun):
     """
     Tidy up the query into something that looks like PUNs we are expecting
-
-    # None returns empty string
-    >>> tidy_up_pun(None)
-    ''
-
-    # Tidy up and strip as expected
-    >>> tidy_up_pun("AB:01:23:45")
-    'AB:1:23:45'
-    >>> tidy_up_pun("AB--01::23 45")
-    'AB:1:23:45'
-    >>> tidy_up_pun("  AB--01::23 45  ")
-    'AB:1:23:45'
-
-    # Convert state numbers to state code, if found
-    >>> tidy_up_pun("01:01:23:45")
-    'AB:1:23:45'
-    >>> tidy_up_pun("01")
-    'AB'
-    >>> tidy_up_pun("99:01:23:45")
-    '99:1:23:45'
     """
 
     if not pun:
