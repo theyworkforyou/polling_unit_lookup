@@ -2,7 +2,7 @@ import os
 import re
 
 import requests
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 
 
 # These are hardcoded here rather than being introduced into the database to
@@ -121,8 +121,9 @@ def get_area_from_pun(pun):
             return r.json()
 
 
-@app.route("/lookup/<polling_unit_number>")
-def lookup(polling_unit_number):
+@app.route("/")
+def lookup():
+    polling_unit_number = request.args.get('lookup')
     pun = tidy_up_pun(polling_unit_number)
 
     if not pun_re.search(pun):
