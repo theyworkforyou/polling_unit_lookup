@@ -15,3 +15,9 @@ Clone the source code from GitHub and then install the dependencies with `pip`. 
     python polling_unit_lookup.py
 
 Then the app will be running at <http://localhost:5000>.
+
+### Running the tests
+
+To run the tests for the app:
+
+    nosetests
