@@ -116,7 +116,18 @@ def lookup():
         error = 'No areas were found that matched polling unit: {}'
         return jsonify(code=404, error=error.format(polling_unit_number)), 404
 
-    return jsonify(area)
+    fmt = '{mapit}/area/{area_id}/covered'
+    url = fmt.format(mapit=app.config['MAPIT_API_URL'], area_id=area['id'])
+    states = requests.get(url, params={'type': 'STA'}).json()
+    federal_constituencies = requests.get(url, params={'type': 'FED'}).json()
+    senatorial_districts = requests.get(url, params={'type': 'SEN'}).json()
+
+    return jsonify({
+        'area': area,
+        'states': states.values(),
+        'federal_constituencies': federal_constituencies.values(),
+        'senatorial_districts': senatorial_districts.values(),
+    })
 
 
 if __name__ == "__main__":

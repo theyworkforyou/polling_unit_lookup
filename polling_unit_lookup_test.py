@@ -1,6 +1,7 @@
 from polling_unit_lookup import app, tidy_up_pun
 import unittest
 import requests_mock
+import json
 
 
 class TidyUpPunTestCase(unittest.TestCase):
@@ -26,6 +27,51 @@ class PollingUnitLookupTestCase(unittest.TestCase):
         app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
         self.app = app.test_client()
 
+        self.mapit_area = {
+            'id': 42,
+            'name': 'Aba North',
+        }
+
+        self.states = {
+            2: {
+                'name': 'Abia',
+            },
+        }
+
+        self.federal_constituencies = {
+            1109: {
+                'name': 'Aba North/South',
+            },
+        }
+
+        self.senatorial_districts = {
+            811: {
+                'name': 'ABIA SOUTH',
+            },
+        }
+
+    def mock_mapit_response(self, m, pun):
+        m.get(
+            'http://mapit/code/poll_unit/{}'.format(pun),
+            headers={'Location': 'http://mapit/area/42'},
+            status_code=302)
+        m.get('http://mapit/area/42', json=self.mapit_area)
+        m.get('http://mapit/area/42/covered?type=STA', json=self.states)
+        m.get('http://mapit/area/42/covered?type=FED', json=self.federal_constituencies)
+        m.get('http://mapit/area/42/covered?type=SEN', json=self.senatorial_districts)
+        return {
+            'area': self.mapit_area,
+            'states': [
+                self.states[2],
+            ],
+            'federal_constituencies': [
+                self.federal_constituencies[1109],
+            ],
+            'senatorial_districts': [
+                self.senatorial_districts[811],
+            ],
+        }
+
     def test_polling_unit_lookup_invalid_number(self):
         rv = self.app.get('/?lookup=abcd')
         self.assertIn('Unrecognized polling unit: abcd', rv.data)
@@ -33,10 +79,10 @@ class PollingUnitLookupTestCase(unittest.TestCase):
 
     def test_polling_unit_lookup_valid_number(self):
         with requests_mock.mock() as m:
-            m.get('http://mapit/code/poll_unit/AB:1:23:45', text='{"name": "Area"}')
+            expected = self.mock_mapit_response(m, 'AB:1:23:45')
             rv = self.app.get('/?lookup=AB%3A01%3A23%3A45')
             self.assertEqual(rv.status_code, 200)
-            self.assertEqual(rv.data, '{"name": "Area"}')
+            self.assertEqual(expected, json.loads(rv.data))
 
     def test_polling_unit_lookup_valid_number_no_area(self):
         with requests_mock.mock() as m:
@@ -50,17 +96,17 @@ class PollingUnitLookupTestCase(unittest.TestCase):
             m.get('http://mapit/code/poll_unit/AB:1:23:45', status_code=404)
             m.get('http://mapit/code/poll_unit/AB:1:23', status_code=404)
             m.get('http://mapit/code/poll_unit/AB:1', status_code=404)
-            m.get('http://mapit/code/poll_unit/AB', text='{"name": "Area"}')
+            expected = self.mock_mapit_response(m, 'AB')
             rv = self.app.get('/?lookup=AB%3A01%3A23%3A45')
             self.assertEqual(rv.status_code, 200)
-            self.assertEqual(rv.data, '{"name": "Area"}')
+            self.assertEqual(expected, json.loads(rv.data))
 
     def test_lookup_with_slashes(self):
         with requests_mock.mock() as m:
-            m.get('http://mapit/code/poll_unit/AB:2:3:4', text='{"name": "Area"}')
+            expected = self.mock_mapit_response(m, 'AB:2:3:4')
             rv = self.app.get('/?lookup=01%2F02%2F03%2F04')
             self.assertEqual(rv.status_code, 200)
-            self.assertEqual(rv.data, '{"name": "Area"}')
+            self.assertEqual(expected, json.loads(rv.data))
 
 
 if __name__ == '__main__':
