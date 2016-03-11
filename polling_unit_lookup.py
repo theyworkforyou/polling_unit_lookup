@@ -107,8 +107,8 @@ def lookup():
     pun = tidy_up_pun(polling_unit_number)
 
     if not pun_re.search(pun):
-        error = 'Unrecognized polling unit: {}.'
-        return jsonify(code=404, error=error.format(polling_unit_number)), 404
+        error = 'Invalid polling unit: {}.'
+        return jsonify(code=400, error=error.format(polling_unit_number)), 400
 
     area = get_area_from_pun(pun)
 

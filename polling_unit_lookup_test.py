@@ -74,8 +74,8 @@ class PollingUnitLookupTestCase(unittest.TestCase):
 
     def test_polling_unit_lookup_invalid_number(self):
         rv = self.app.get('/?lookup=abcd')
-        self.assertIn('Unrecognized polling unit: abcd', rv.data)
-        self.assertEqual(rv.status_code, 404)
+        self.assertIn('Invalid polling unit: abcd', rv.data)
+        self.assertEqual(rv.status_code, 400)
 
     def test_polling_unit_lookup_valid_number(self):
         with requests_mock.mock() as m:
