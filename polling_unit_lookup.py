@@ -84,7 +84,7 @@ pun_re = re.compile('''
 
 app = Flask(__name__)
 app.config['MAPIT_API_URL'] = os.environ.get(
-    'MAPIT_API_URL', 'http://www.shineyoureye.org/mapit')
+    'MAPIT_API_URL', 'http://nigeria.mapit.mysociety.org')
 
 
 def mapit_url(pun):
